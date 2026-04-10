@@ -71,21 +71,20 @@ def build_istate(cmap, cat_data: CategoryData, pop_splits=None):
     strats_to_split = all_strats.difference(cat_strats)
 
     cat_indices_l = get_cat_indices_list(cat_data.cats, cmap)
-    cat_indices = np.array(cat_indices_l)
+    data = istate.data
 
-    data = istate.data.at[cat_indices.T].set(cat_data.data)
+    if len(set([len(ci) for ci in cat_indices_l])) != 1:
+        for i, ci in enumerate(cat_indices_l):
+            data = data.at[ci].set(cat_data.data[i])
+    else:
+        cat_inidices_arr = np.array(cat_indices_l)
+        data = istate.data.at[cat_inidices_arr.T].set(cat_data.data)
 
     for ps_cat_data in pop_splits:
         this_pop_strats = set(ps_cat_data.cats.strats())
         strats_to_split = strats_to_split.difference(this_pop_strats)
-        cat_indices_l = get_cat_indices_list(ps_cat_data.cats, cmap)
-        if len(set([len(ci) for ci in cat_indices_l])) > 1:
-            # We need to iterate the data updates if the cat indices are of different lengths, otherwise we can do it in one go
-            for cat_local_idx, cat_idx in enumerate(cat_indices_l):
-                data = data.at[cat_idx].mul(ps_cat_data.data[cat_local_idx])
-        else:
-            cat_indices = np.array(cat_indices_l)
-            data = data.at[cat_indices.T].mul(ps_cat_data.data)
+        cat_indices = np.array(get_cat_indices_list(ps_cat_data.cats, cmap))
+        data = data.at[cat_indices.T].mul(ps_cat_data.data)
 
     for rem_strat in list(strats_to_split):
         cgroup = rem_strat.categories()
