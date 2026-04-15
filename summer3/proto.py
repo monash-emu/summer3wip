@@ -350,13 +350,11 @@ def reconcile_broadcast(srcq, destq, cmap, strategy=None):
         return src, dest, None
     else:
         if len(src) > len(dest):
-            print("Gather")
             src_tmp = src
             src = dest
             dest = src_tmp
             scatter = False
         else:
-            print("Scatter")
             scatter = True
         src_strats = set(strats_for_cmap(src))
         dest_strats = set(strats_for_cmap(dest))
