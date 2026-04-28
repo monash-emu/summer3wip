@@ -73,22 +73,43 @@ def build_istate(cmap, cat_data: CategoryData, pop_splits=None):
     cat_indices_l = get_cat_indices_list(cat_data.cats, cmap)
     data = istate.data
 
+    # +++ FIXME
+    # This is all getting increasingly unwieldy; there is probably a nice
+    # functional way to generically handle the 2 cat_indices branches;
+    # consider this function a template example of the kinds of things
+    # we want to do with this
+
     if len(set([len(ci) for ci in cat_indices_l])) != 1:
         for i, ci in enumerate(cat_indices_l):
             data = data.at[ci].set(cat_data.data[i])
     else:
-        cat_inidices_arr = np.array(cat_indices_l)
-        data = istate.data.at[cat_inidices_arr.T].set(cat_data.data)
+        cat_indices_arr = np.array(cat_indices_l)
+        data = istate.data.at[cat_indices_arr.T].set(cat_data.data)
 
     for ps_cat_data in pop_splits:
         this_pop_strats = set(ps_cat_data.cats.strats())
         strats_to_split = strats_to_split.difference(this_pop_strats)
-        cat_indices = np.array(get_cat_indices_list(ps_cat_data.cats, cmap))
-        data = data.at[cat_indices.T].mul(ps_cat_data.data)
+
+        cat_indices_l = get_cat_indices_list(ps_cat_data.cats, cmap)
+        if len(set([len(ci) for ci in cat_indices_l])) != 1:
+            for i, ci in enumerate(cat_indices_l):
+                data = data.at[ci].mul(ps_cat_data.data[i])
+        else:
+            cat_indices_arr = np.array(cat_indices_l)
+            data = data.at[cat_indices_arr.T].mul(ps_cat_data.data)
+
+        # cat_indices = np.array(get_cat_indices_list(ps_cat_data.cats, cmap))
+        # data = data.at[cat_indices.T].mul(ps_cat_data.data)
 
     for rem_strat in list(strats_to_split):
         cgroup = rem_strat.categories()
-        cat_indices = np.array(get_cat_indices_list(cgroup, cmap))
-        data = data.at[cat_indices.T].mul(1.0 / len(rem_strat.strata))
+        # cat_indices = np.array(get_cat_indices_list(cgroup, cmap))
+        cat_indices_l = get_cat_indices_list(cgroup, cmap)
+        if len(set([len(ci) for ci in cat_indices_l])) != 1:
+            for i, ci in enumerate(cat_indices_l):
+                data = data.at[ci].mul(1.0 / len(rem_strat.strata))
+        else:
+            cat_indices_arr = np.array(cat_indices_l)
+            data = data.at[cat_indices_arr.T].mul(1.0 / len(rem_strat.strata))
 
     return istate.copy_with(data=data)
