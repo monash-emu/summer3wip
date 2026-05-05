@@ -553,7 +553,10 @@ class EntryFlow:
         from .categories import CategoryData, get_cat_indices
 
         def apply_flow(cdatamap, params):
-            param = params[self.param]
+            if param_key is None:
+                param = self.param
+            else:
+                param = params[param_key]
             if isinstance(param, CategoryData):
                 raise Exception("CategoryData not yet supported for EntryFlow")
             else:
