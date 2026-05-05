@@ -539,13 +539,18 @@ class ActualizedEntryFlow:
 
 
 class EntryFlow:
-    def __init__(self, destq, param):
+    def __init__(self, name, destq, param):
         self.destq = validate_qspec(destq)
         self.param = param
         self.adjustments = []
+        self.name = name
 
-    def actualize(self, cmap):
+    def actualize(self, cmap, param_key=None, adj_param_keys=None):
         dest_cmap = cmap.query(self.destq)
+
+        adj_param_keys = adj_param_keys or {}
+
+        from .categories import CategoryData, get_cat_indices
 
         def apply_flow(cdatamap, params):
             param = params[self.param]
