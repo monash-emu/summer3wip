@@ -359,7 +359,7 @@ class CompartmentalModelODE:
                 t0=0,
                 t1=timesteps,
                 throw=False,
-                max_steps=int(2 * timesteps),
+                max_steps=int(4 * timesteps),
                 dt0=0.1,
                 y0=init_state,
                 args=params,
