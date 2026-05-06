@@ -354,7 +354,7 @@ class CompartmentalModelODE:
 
 
             default_kwargs = dict(
-                term=term,
+                terms=term,
                 solver=solver,
                 t0=0,
                 t1=timesteps,
