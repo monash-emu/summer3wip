@@ -545,7 +545,7 @@ class EntryFlow:
         self.adjustments = []
         self.name = name
 
-    def actualize(self, cmap, param_key=None, adj_param_keys=None):
+    def actualize(self, cmap: CompartmentMap, param_key=None, adj_param_keys=None):
         dest_cmap = cmap.query(self.destq)
 
         adj_param_keys = adj_param_keys or {}
@@ -560,7 +560,7 @@ class EntryFlow:
             if isinstance(param, CategoryData):
                 raise Exception("CategoryData not yet supported for EntryFlow")
             else:
-                flow_vals = param
+                flow_vals = jnp.repeat(param, len(dest_cmap.compartments))
             return flow_vals
 
         return ActualizedEntryFlow(self, dest_cmap, self.adjustments, apply_flow)
