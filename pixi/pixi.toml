@@ -1,0 +1,16 @@
+[workspace]
+channels = ["conda-forge"]
+name = "pixi"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.13.*"
+ipykernel = ">=7.2.0,<8"
+plotly = ">=6.6.0,<7"
+nbformat = ">=5.10.4,<6"
+
+[pypi-dependencies]
+summer3 = { path = "../", editable = true}
