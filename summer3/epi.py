@@ -15,11 +15,11 @@ class CompartmentalEpiModel:
         self.base_pops = base_pops
         self.pop_splits = pop_splits
 
-    def run(self, params: dict[str, float]):
+    def run(self, params: dict[str, float], solver_kwargs=None):
         istate = build_istate(self.cmap, self.base_pops, self.pop_splits)
         cmodel = CompartmentalModelODE(self.cmap, self.flows)
         runner = cmodel.get_runner(len(self.times), dti_to_epoch(self.times))
-        return runner.run(istate.data, params)
+        return runner.run(istate.data, params, solver_kwargs=solver_kwargs)
 
     def add_flow(self, flow, key: Optional[str] = None):
         key = key or flow.name

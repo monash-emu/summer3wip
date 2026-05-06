@@ -212,9 +212,9 @@ class CompartmentalModelODERunner:
         else:
             self._time_idx = epoch.index_to_dti(np.arange(0, timesteps))
 
-    def run(self, init_state, params, solver_args=None):
-        solver_args = solver_args or {}
-        gathered_res = self._run_func(init_state, params, **solver_args)
+    def run(self, init_state, params, solver_kwargs=None):
+        solver_kwargs = solver_kwargs or {}
+        gathered_res = self._run_func(init_state, params, solver_kwargs)
         flow_outputs = gathered_res["flows"]
         compartment_outputs = gathered_res["compartments"]
         computed_values = gathered_res["computed_values"]
@@ -336,7 +336,10 @@ class CompartmentalModelODE:
                     )
             return comp_delta
 
-        def run_model(init_state, params, dtmax=1.0):
+        def run_model(init_state, params, dtmax=1.0, solver_kwargs=None):
+
+            solver_kwargs = solver_kwargs or {}
+
             term = dfx.ODETerm(vector_field)
             solver = dfx.Dopri5()  # cust
             saveat = dfx.SaveAt(ts=jnp.arange(timesteps))
@@ -347,9 +350,12 @@ class CompartmentalModelODE:
             adjoint = dfx.RecursiveCheckpointAdjoint()
             # adjoint = diffrax.ForwardMode()
             # adjoint = diffrax.DirectAdjoint()
-            sol = dfx.diffeqsolve(
-                term,
-                solver,
+
+
+
+            default_kwargs = dict(
+                term=term,
+                solver=solver,
                 t0=0,
                 t1=timesteps,
                 throw=False,
@@ -361,6 +367,9 @@ class CompartmentalModelODE:
                 stepsize_controller=stepsize_controller,
                 adjoint=adjoint,
             )
+
+            final_kwargs = default_kwargs | solver_kwargs
+            sol = dfx.diffeqsolve(**final_kwargs)
 
             flow_values = jax.vmap(get_flow_values, in_axes=(0, 0, None))(
                 sol.ts, sol.ys, params
