@@ -336,7 +336,7 @@ class CompartmentalModelODE:
                     )
             return comp_delta
 
-        def run_model(init_state, params, dtmax=1.0, solver_kwargs=None):
+        def run_model(init_state, params, solver_kwargs=None, dtmax=1.0):
 
             solver_kwargs = solver_kwargs or {}
 
