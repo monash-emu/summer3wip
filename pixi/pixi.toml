@@ -11,6 +11,7 @@ python = "3.13.*"
 ipykernel = ">=7.2.0,<8"
 plotly = ">=6.6.0,<7"
 nbformat = ">=5.10.4,<6"
+pytest = ">=9.0.3,<10"
 
 [pypi-dependencies]
 summer3 = { path = "../", editable = true}
