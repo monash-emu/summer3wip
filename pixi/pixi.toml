@@ -11,7 +11,20 @@ python = "3.13.*"
 ipykernel = ">=7.2.0,<8"
 plotly = ">=6.6.0,<7"
 nbformat = ">=5.10.4,<6"
-pytest = ">=9.0.3,<10"
 
 [pypi-dependencies]
 summer3 = { path = "../", editable = true}
+optax = ">=0.2.8, <0.3"
+
+[environments]
+docs = ["docs"]
+test = ["test"]
+
+[feature.test.dependencies]
+pytest = ">=9.0.3,<10"
+
+[feature.test.tasks]
+test = { cmd = "pytest ../tests/", description = "Run all tests" }
+
+[feature.docs.dependencies]
+sphinx = "*"

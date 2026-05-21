@@ -11,11 +11,20 @@ class CompartmentalEpiModel:
         self.times = times
         self.flows = {}
 
-    def set_initial_population(self, base_pops, pop_splits=None):
+    def set_initial_population(
+        self, base_pops: CategoryData, pop_splits: Optional[list[CategoryData]] = None
+    ):
+        """Set the initial population using absolute values over base_pops,
+        then proportions for pop_splits.
+
+        Args:
+            base_pops: Absolute values for base population stratification
+            pop_splits: Optional proportional splits for further stratifications
+        """
         self.base_pops = base_pops
         self.pop_splits = pop_splits
 
-    def run(self, params: dict[str, float], solver_kwargs=None):
+    def run(self, params: dict[str, float], solver_kwargs: Optional[dict] = None):
         istate = build_istate(self.cmap, self.base_pops, self.pop_splits)
         cmodel = CompartmentalModelODE(self.cmap, self.flows)
         runner = cmodel.get_runner(len(self.times), dti_to_epoch(self.times))

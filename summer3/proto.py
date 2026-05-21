@@ -456,10 +456,16 @@ class TransitionFlow:
 
                 from .managed import ManagedArray
 
+                # +++
+                # Do we really just mean CategoryData here?
+                # This is more flexible, but not sure if it's actually useful...
                 if isinstance(adj, ManagedArray):
                     cats = adj.indices["category"].index
                     cidx = get_cat_indices(cats, src_cmap)
-                    flow_vals = flow_vals.at[cidx.T].mul(adj.data)
+                    assert cidx.size == np.unique(cidx).size
+                    flow_vals = flow_vals.at[cidx.T].mul(adj.data, unique_indices=True)
+                elif isinstance(adj, float):
+                    flow_vals = flow_vals * adj
                 else:
                     raise Exception("Unsupported adjustment", adj)
 
