@@ -439,15 +439,7 @@ class TransitionFlow:
             else:
                 param = params[param_key]
             if isinstance(param, CategoryData):
-                cidx = get_cat_indices(param.cats, src_cmap)
-
-                # Need to guarantee unique indices for gradients to work
-                # For most use cases this should probably be fine - where it's not we may need to split this out into
-                # multiple ops, which we already do in other special cases
-                assert cidx.size == np.unique(cidx).size
-                flow_vals = src_comp_vals.at[cidx.T].mul(
-                    param.data, unique_indices=True
-                )
+                flow_vals = mul_jarray_catdata(flow_vals, param, cmap, unique_indices=True)
             else:
                 flow_vals = param * src_comp_vals
             for adj in realised_adjustments:
