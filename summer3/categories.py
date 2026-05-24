@@ -106,6 +106,7 @@ class CategoryGroup:
         return CategoryGroup(categories)
 
     def product(self, trait: Union[StratSpec, "CategoryGroup", Stratification]):
+        from .proto import Stratification
         if isinstance(trait, Stratification):
             trait = trait.categories()
         if isinstance(trait, CategoryGroup):
