@@ -439,7 +439,7 @@ class TransitionFlow:
             else:
                 param = params[param_key]
             if isinstance(param, CategoryData):
-                flow_vals = mul_jarray_catdata(flow_vals, param, cmap, unique_indices=True)
+                flow_vals = mul_jarray_catdata(src_comp_vals, param, cmap, unique_indices=True)
             else:
                 flow_vals = param * src_comp_vals
             for adj in realised_adjustments:
