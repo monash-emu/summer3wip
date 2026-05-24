@@ -7,6 +7,8 @@ from warnings import warn
 from copy import deepcopy
 import numpy.typing as npt
 
+from summer3.arrayops import mul_jarray_catdata, mul_ma_catdata
+
 from .utils import validate_qspec, strats_for_cmap
 
 import jax
@@ -454,16 +456,11 @@ class TransitionFlow:
                 if i in adj_param_keys:
                     adj = params[adj_param_keys[i]]
 
-                from .managed import ManagedArray
-
                 # +++
                 # Do we really just mean CategoryData here?
                 # This is more flexible, but not sure if it's actually useful...
-                if isinstance(adj, ManagedArray):
-                    cats = adj.indices["category"].index
-                    cidx = get_cat_indices(cats, src_cmap)
-                    assert cidx.size == np.unique(cidx).size
-                    flow_vals = flow_vals.at[cidx.T].mul(adj.data, unique_indices=True)
+                if isinstance(adj, CategoryData):
+                    flow_vals = mul_jarray_catdata(flow_vals, adj, cmap, unique_indices=True)
                 elif isinstance(adj, float):
                     flow_vals = flow_vals * adj
                 else:
