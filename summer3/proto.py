@@ -345,11 +345,22 @@ def iter_stratspec(sspec: StratSpec):
         yield (strat, stratum)
 
 
+
 def reconcile_broadcast(srcq, destq, cmap, strategy=None):
     src = cmap.query(srcq)
     dest = cmap.query(destq)
     if len(src.compartments) == len(dest.compartments):
+        # Many to many, exact mapping
         return src, dest, None
+    elif len(dest.compartments) == 1:
+        # Many to one
+        out_dest_comps = np.repeat(dest.compartments[0], len(src))
+        out_dest_indices = np.arange(len(src))
+
+        out_dest = CompartmentContainer(
+            out_dest_comps, dest.root, dest.root, out_dest_indices
+        )
+        return src, out_dest, None
     else:
         if len(src) > len(dest):
             src_tmp = src
@@ -399,7 +410,6 @@ def reconcile_broadcast(srcq, destq, cmap, strategy=None):
                 return rec_src, rec_dest, np.array(adj)
             else:
                 return rec_dest, rec_src, None
-
 
 class ActualizedTransitionFlow:
     def __init__(self, flow, src_cmap, dest_cmap, adjustments, apply_func):
