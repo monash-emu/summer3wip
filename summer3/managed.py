@@ -16,7 +16,7 @@ from . import proto
 import pandas as pd
 from .utils import squash_to_slice, Indexer, get_rolling_reduction
 from summer3.polarized.properties import PropertyTable
-
+import xarray as xr
 
 class ManagedIndex:
     """An index that maps to a specific dimension in a ManagedArray.
@@ -605,6 +605,17 @@ class ManagedArray:
         """
         reduced_data = get_rolling_reduction(reduction_func, window)(self.data)
         return self.copy_with(data=reduced_data)
+
+    def to_xarray_da(self):
+        """Convert to a xarray DataArray.
+        """
+        dims = self.dims
+        coords = {}
+        for dim in dims:
+            if dim in self.indices:
+                if isinstance(self.indices[dim].index, pd.Index):
+                    coords[dim] = self.indices[dim].index
+        return xr.DataArray(self.data, dims=self.dims, coords=coords)
 
     def to_pandas_df(self):
         """Convert to a pandas DataFrame.
