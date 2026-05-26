@@ -249,8 +249,8 @@ class CompartmentalModelODERunner:
         # Run a single timestep to get the realised coords of all items in the graph
         # Hopefully some of this disappears in optimization?
         ref_comp_outs = compartment_outputs[0, :]
-        cvals = self.model.cmap.zeros().as_managed_array()
-        model_variables = {"time": 0, "compartment_values": cvals}
+        cvals_ref = self.model.cmap.zeros().as_managed_array()
+        model_variables = {"time": 0, "compartment_values": cvals_ref}
         dyn_vals = self._graph_func(model_variables=model_variables, parameters=params)
 
         out_cv = {}
@@ -258,8 +258,13 @@ class CompartmentalModelODERunner:
         for k, v in computed_values.items():
             ref_ma = dyn_vals[k]
             indices = {"time": ManagedIndex("time", self._time_idx)}
+            if isinstance(ref_ma, ManagedArray):
+                extra_dims = ref_ma.dims
+                indices = indices | ref_ma.indices
+            else:
+                extra_dims = [str(i) for i in range(len(ref_ma.shape))]
             out_cv[k] = ManagedArray(
-                v, dims=["time"] + ref_ma.dims, indices=indices | ref_ma.indices
+                v, dims=["time"] + extra_dims, indices=indices
             )
 
         return {
@@ -375,10 +380,18 @@ class CompartmentalModelODE:
                 sol.ts, sol.ys, params
             )
 
+            def pure_jax_graph_func(t: float, cvals: jax.Array) -> dict[str, jax.Array]:
+                hdata = self.cmap.wrap_data(cvals).as_managed_array()
+                model_variables = {"time": t, "compartment_values": hdata}
+                dyn_values = cgraphfunc(model_variables=model_variables, parameters=params)
+                return {k: dyn_values[k] for k in computed_values}
+            
+            computed_values_res = jax.vmap(pure_jax_graph_func, in_axes=(0, 0))(sol.ts, sol.ys)
+
             return {
                 "compartments": sol.ys,
                 "flows": flow_values,
-                "computed_values": {},
+                "computed_values": computed_values_res,
                 "aux": sol,
             }
 

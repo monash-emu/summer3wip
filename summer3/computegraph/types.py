@@ -88,6 +88,10 @@ class GraphObject(AbstractGraphObject):
 
         return ComputeGraph(self)
 
+    def set_name(self, name: str) -> 'GraphObject':
+        self.node_name = name
+        return self
+    
     # def __getattr__(self, attr):
     #     try:
     #         np_attr = getattr(np, attr)
