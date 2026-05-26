@@ -10,6 +10,7 @@ class CompartmentalEpiModel:
         self.cmap = cmap
         self.times = times
         self.flows = {}
+        self.computed_values = []
 
     def set_initial_population(
         self, base_pops: CategoryData, pop_splits: Optional[list[CategoryData]] = None
@@ -27,7 +28,7 @@ class CompartmentalEpiModel:
     def run(self, params: dict[str, float], solver_kwargs: Optional[dict] = None):
         istate = build_istate(self.cmap, self.base_pops, self.pop_splits)
         cmodel = CompartmentalModelODE(self.cmap, self.flows)
-        runner = cmodel.get_runner(len(self.times), dti_to_epoch(self.times))
+        runner = cmodel.get_runner(len(self.times), dti_to_epoch(self.times), computed_values=self.computed_values)
         return runner.run(istate.data, params, solver_kwargs=solver_kwargs)
 
     def add_flow(self, flow, key: Optional[str] = None):
