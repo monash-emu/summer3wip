@@ -355,7 +355,7 @@ def reconcile_broadcast(srcq, destq, cmap, strategy=None):
     elif len(dest.compartments) == 1:
         # Many to one
         out_dest_comps = np.repeat(dest.compartments[0], len(src))
-        out_dest_indices = np.arange(len(src))
+        out_dest_indices = np.arange(len(src), dtype=np.int32)
 
         out_dest = CompartmentContainer(
             out_dest_comps, dest.root, dest.root, out_dest_indices
