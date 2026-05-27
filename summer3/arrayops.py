@@ -11,7 +11,7 @@ def mul_jarray_catdata(data: Array, cat_data: CategoryData, cmap, unique_indices
         for i, ci in enumerate(cat_indices_l):
             data = data.at[ci].mul(cat_data.data[i], unique_indices=unique_indices)
     else:
-        cat_indices_arr = np.array(cat_indices_l)
+        cat_indices_arr = np.array(cat_indices_l, dtype=np.int32)
         data = data.at[cat_indices_arr.T].mul(cat_data.data, unique_indices=unique_indices)
     return data
 
