@@ -397,8 +397,8 @@ def reconcile_broadcast(srcq, destq, cmap, strategy=None):
 
             out_src_comps = np.array(out_src_comps)
             out_dest_comps = np.array(out_dest_comps)
-            out_src_indices = np.array(out_src_indices)
-            out_dest_indices = np.array(out_dest_indices)
+            out_src_indices = np.array(out_src_indices, dtype=np.int32)
+            out_dest_indices = np.array(out_dest_indices, dtype=np.int32)
 
             rec_src = CompartmentContainer(
                 out_src_comps, src.root, src.root, out_src_indices
