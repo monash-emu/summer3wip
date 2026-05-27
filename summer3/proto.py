@@ -425,7 +425,8 @@ class TransitionFlow:
         self.srcq = validate_qspec(srcq)
         self.destq = validate_qspec(destq)
         self.param = param
-        self.adjustments = []
+        self.adjustments_source = []
+        self.adjustments_dest = []
         self.name = name
 
     def actualize(self, cmap, param_key=None, adj_param_keys=None):
@@ -454,15 +455,26 @@ class TransitionFlow:
                 flow_vals = param * src_comp_vals
             for adj in realised_adjustments:
                 flow_vals = flow_vals * adj
-            for i, adj in enumerate(self.adjustments):
-                if i in adj_param_keys:
-                    adj = params[adj_param_keys[i]]
+            for i, adj in enumerate(self.adjustments_source):
+                adj_key = f"source_adj_{i}"
+                if adj_key in adj_param_keys:
+                    adj = params[adj_param_keys[adj_key]]
 
                 # +++
                 # Do we really just mean CategoryData here?
                 # This is more flexible, but not sure if it's actually useful...
                 if isinstance(adj, CategoryData):
                     flow_vals = mul_jarray_catdata(flow_vals, adj, src_cmap, unique_indices=True)
+                elif isinstance(adj, float):
+                    flow_vals = flow_vals * adj
+                else:
+                    raise Exception("Unsupported adjustment", adj)
+            for i, adj in enumerate(self.adjustments_dest):
+                adj_key = f"dest_adj_{i}"
+                if adj_key in adj_param_keys:
+                    adj = params[adj_param_keys[adj_key]]
+                if isinstance(adj, CategoryData):
+                    flow_vals = mul_jarray_catdata(flow_vals, adj, dest_cmap, unique_indices=True)
                 elif isinstance(adj, float):
                     flow_vals = flow_vals * adj
                 else:

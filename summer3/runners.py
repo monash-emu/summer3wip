@@ -291,11 +291,21 @@ class CompartmentalModelODE:
             else:
                 flow_param_key = None
             adj_param_keys = {}
-            for iadj, adj in enumerate(flow.adjustments):
-                if isinstance(adj, GraphObject):
-                    adj_key = f"_flow_param_{k}_adj[{iadj}]"
-                    adj_param_keys[iadj] = adj_key
+            if isinstance(flow, TransitionFlow):
+                for iadj, adj in enumerate(flow.adjustments_source):
+                    adj_key = f"_flow_param_{k}_adj_source[{iadj}]"
+                    adj_param_keys[f"source_adj_{iadj}"] = adj_key
                     graph_dict[adj_key] = adj
+                for iadj, adj in enumerate(flow.adjustments_dest):
+                    adj_key = f"_flow_param_{k}_adj_dest[{iadj}]"
+                    adj_param_keys[f"dest_adj_{iadj}"] = adj_key
+                    graph_dict[adj_key] = adj
+            else:
+                for iadj, adj in enumerate(flow.adjustments):
+                    if isinstance(adj, GraphObject):
+                        adj_key = f"_flow_param_{k}_adj[{iadj}]"
+                        adj_param_keys[iadj] = adj_key
+                        graph_dict[adj_key] = adj
             actual_flows[k] = flow.actualize(self.cmap, flow_param_key, adj_param_keys)
 
         return ComputeGraph(graph_dict), actual_flows
